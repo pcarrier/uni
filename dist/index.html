@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -eu
+
+ARCH=$(uname -sm|tr ' ' '-')
+TEMP_FILE="/tmp/uni-installer-$$"
+
+cleanup() {
+    if [ -f "$TEMP_FILE" ]; then
+        rm -f "$TEMP_FILE"
+    fi
+}
+
+trap cleanup EXIT
+
+curl "https://install.uniform.tools/$ARCH" -o "$TEMP_FILE"
+chmod +x "$TEMP_FILE"
+
+if [ "$(id -u)" -eq 0 ]; then
+    mv "$TEMP_FILE" /usr/local/bin/uni
+elif command -v sudo >/dev/null 2>&1; then
+    sudo mv "$TEMP_FILE" /usr/local/bin/uni
+elif command -v doas >/dev/null 2>&1; then
+    doas mv "$TEMP_FILE" /usr/local/bin/uni
+else
+    echo "Error: Need sudo or doas to install to /usr/local/bin"
+    exit 1
+fi
+
+echo "uni installed to /usr/local/bin/uni"

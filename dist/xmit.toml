@@ -1,0 +1,4 @@
+[[headers]]
+name = "content-type"
+value = "text/plain"
+on = "^/$"
